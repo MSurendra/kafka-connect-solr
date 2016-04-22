@@ -82,7 +82,6 @@ public class SolrServerClient {
 		
 		CloseableHttpClient client = HttpClients.createDefault();
 		HttpPost post = new HttpPost(this._config.getClusterUrl());
-	 
 		post.setHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=UTF-8");
 		
 		try {
@@ -100,6 +99,11 @@ public class SolrServerClient {
 		} catch (IOException ioException) {
 			logger.error(ioException.getMessage());
 		} finally {
+			try {
+				client.close();
+			} catch (IOException e) {
+				logger.error("Exception occured when closing connection."+e)
+			}
 		}
 	}
 	
