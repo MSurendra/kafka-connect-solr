@@ -68,10 +68,9 @@ public class SolrJsonDocConverter implements Converter {
 	    byte[] jsonByte = null;
 	    JsonNode valueJson = null;  
 	    JsonNode keyJson = null;
-	    Map keyJsonMap = (keyJson != null) ? mapper.convertValue(keyJson, Map.class) : null;
-        Map valueJsonMap = (valueJson != null) ? mapper.convertValue(valueJson, Map.class) : null;
 	    
-	    if (keyJson != null) {
+	    
+	    if (keyStream != null) {
             try {
             	keyJson = reader.readTree(new ByteArrayInputStream(keyStream));
             } catch (IOException e) {
@@ -88,6 +87,9 @@ public class SolrJsonDocConverter implements Converter {
                     log.error("Error when converting key to Json Object", e);
             }
         }
+        
+        Map keyJsonMap = (keyJson != null) ? mapper.convertValue(keyJson, Map.class) : null;
+        Map valueJsonMap = (valueJson != null) ? mapper.convertValue(valueJson, Map.class) : null;
 	        
         if (keyJsonMap != null) {
         	jsonRecord.putAll(keyJsonMap);
