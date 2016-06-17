@@ -42,9 +42,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class SolrServerClient {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(SolrServerClient.class);
-	
+
 	private final SolrConnectorConfig _config;
 	private LinkedBlockingQueue<HashMap<String,Object>> _batchQueue = null;
 	private TypeReference<HashMap<String,Object>> typeRef = new TypeReference<HashMap<String,Object>>() {};
@@ -54,9 +54,9 @@ public class SolrServerClient {
 		this._batchQueue = new LinkedBlockingQueue<HashMap<String,Object>>(_config.getBulkSize());
 		mapper = new ObjectMapper();
 	}
-	
+
 	public void write(byte[] data) {
-		
+
 		try {
 			this._batchQueue.add((HashMap<String,Object>)mapper.readValue(data, typeRef));
 		} catch (JsonParseException e) {
@@ -64,7 +64,7 @@ public class SolrServerClient {
 		} catch (JsonMappingException e) {
 			logger.error("Json processing EXception" + e);
 		} catch (IOException e) {
-			
+
 			logger.error("Json IO EXception" + e);
 		}
 		 if(this._batchQueue.remainingCapacity() == 0) {
@@ -77,13 +77,13 @@ public class SolrServerClient {
 			}
 		 }
 	}
-	
+
 	private void writeToSolr(byte[] data) {
-		
+
 		CloseableHttpClient client = HttpClients.createDefault();
 		HttpPost post = new HttpPost(this._config.getClusterUrl());
 		post.setHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=UTF-8");
-		
+
 		try {
 			EntityBuilder eb = EntityBuilder.create();
 			eb.setBinary(data);
@@ -91,20 +91,20 @@ public class SolrServerClient {
 			HttpResponse response = client.execute(post);
 			//if( logger.isInfoEnabled() )
 			logger.info( "[Response] :: " +EntityUtils.toString(response.getEntity()));
-			
-			
+
+
 		} catch (ClientProtocolException clientException) {
 			logger.error(clientException.getMessage());
-			
+
 		} catch (IOException ioException) {
 			logger.error(ioException.getMessage());
 		} finally {
 			try {
 				client.close();
 			} catch (IOException e) {
-				logger.error("Exception occured when closing connection."+e)
+				logger.error("Exception occured when closing connection."+e);
 			}
 		}
 	}
-	
+
 }
